@@ -151,7 +151,7 @@ class FileConvertor
     raw_file_contents = raw_file.read
     raw_file.close
 
-    msu1_pcm_filename = "#{destdir}/#{Pathname.new(raw_filename).basename('.*')}.pcm"
+    msu1_pcm_filename = "#{destdir}/#{Pathname.new(@input_filename).basename('.*')}.pcm"
 
     File.open(msu1_pcm_filename, 'w') {|f|
       f.print('MSU1')
