@@ -10,6 +10,11 @@
     -d, --destdir=DESTDIR            write converted files to this directory
     -h, --help                       show this message</pre>
 
+### High Level Explanation
+If we have arbitrary audio files we want to use with the MSU-1 we need to do the following:
+
+1. Convert the audio into wav signed 16-bit little endian 44.1kHz. This new audio file will have the the same raw audio data that the MSU-1 can read, but it will have a wav header. This is OK because we need to be able to open this audio file up in some program that can inspect audio
+2. Use an audio program, preferably one that can show you sample numbers, to find the sample numbers of where you want the song to loop. Videogame songs, in general, loop seemlessly so you have to be able to find the sample numbers. Since the audio is 44.1kHz there will be 44,100 samples per second. You can think of each sample representing 1/44100th of a second of data. You need to find the sample number where loop will start and the sample number where the loop will end.
 ### Bulk Conversion Example
 
 #### starting with mp3 files
