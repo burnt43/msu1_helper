@@ -17,7 +17,7 @@ class ArgumentParser
     options.destdir     = nil
 
     option_parser = OptionParser.new {|opts|
-      opts.on("-i", "--input=INPUT", "input file or glob") {|input|
+      opts.on("-i", "--input-files=INPUT_FILES", "input file or glob") {|input|
         options.input_files = Dir[input]
       }
 
@@ -33,11 +33,11 @@ class ArgumentParser
         options.loop_end = loop_end
       }
 
-      opts.on("-l", "--loop-table=LOOP_TABLE_FILENAME", "loop table filename") {|loop_table_filename|
+      opts.on("-l", "--loop-table=LOOP_TABLE", "loop table filename") {|loop_table_filename|
         options.loop_table = File.exists?(loop_table_filename) ? LoopTable.new(loop_table_filename) : nil
       }
 
-      opts.on("-d", "--destdir=DESTINATION_DIRECTORY", "write converted files to this directory") {|destdir|
+      opts.on("-d", "--destdir=DESTDIR", "write converted files to this directory") {|destdir|
         options.destdir = destdir
       }
 

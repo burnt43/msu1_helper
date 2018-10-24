@@ -1,11 +1,9 @@
 # msu1_helper
 <pre>Usage: msu1_helper [options]
-    -i, --input=INPUT                input file or glob
+    -i, --input-files=INPUT_FILES    input file or glob
     -t, --output-type=OUTPUT_TYPE    type to convert audio to (wav_pcm_s16le, msu1_pcm)
     -s, --loop-start=LOOP_START      sample number of where the loop should start
     -e, --loop-end=LOOP_END          sample number of where the loop should end
-    -lLOOP_TABLE_FILENAME,           loop table filename
-        --loop-table
-    -dDESTINATION_DIRECTORY,         write converted files to this directory
-        --destdir
+    -l, --loop-table=LOOP_TABLE      loop table filename
+    -d, --destdir=DESTDIR            write converted files to this directory
     -h, --help                       show this message</pre>
