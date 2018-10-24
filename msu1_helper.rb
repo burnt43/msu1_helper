@@ -57,7 +57,7 @@ class ArgumentParser
 
   def self.validate_options(options)
     unless options.input_files
-      print_error("no input was given. please specify using -i or --input.")
+      print_error("no input was given. please specify using -i or --input-files.")
     end
 
     unless options.output_type
@@ -131,7 +131,7 @@ class LoopTable
 end # LoopTable
 
 class FileConvertor
-  FFMPEG_BIN = '/usr/bin/ffmpeg'
+  FFMPEG_BIN = '/usr/bin/ffmpeg -hide_banner -loglevel panic'
 
   def initialize(input_filename, options={})
     @input_filename    = input_filename
@@ -142,7 +142,7 @@ class FileConvertor
   end
   
   def convert_wav_to_msu1_pcm!
-    create_destdir
+    create_destdir!
 
     trimmed_filename = trim_wav_file!(@input_filename)
     raw_filename     = rawify_wav_file!(trimmed_filename)
@@ -150,6 +150,8 @@ class FileConvertor
     raw_file          = File.open(raw_filename, 'r')
     raw_file_contents = raw_file.read
     raw_file.close
+
+    msu1_pcm_filename = "#{destdir}/#{Pathname.new(raw_filename).basename('.*')}.pcm"
 
     File.open(msu1_pcm_filename, 'w') {|f|
       f.print('MSU1')
@@ -162,37 +164,61 @@ class FileConvertor
   end
 
   def convert_to_wav!
-    create_destdir
+    create_destdir!
 
-    wavify_file!(@input_filename)
+    renamed_filename = rename_file!(@input_filename)
+    wavify_file!(renamed_filename)
   end
 
   private
 
-  def msu1_pcm_filename
-    output_filename = "#{destdir}/#{output_file_basename}.pcm"
+  def rename_file!(input_filename)
+    renamed_basename = Pathname.new(input_filename).basename('.*').to_s
+      .downcase
+      .gsub(/\s+/,'_')
+      .gsub(/['?!()]/,'')
+      .sub(/^\d+/) {|digits| sprintf("%04d", digits.to_i)}
+      .gsub(/_-_/,'_')
+
+    output_filename = "#{Pathname.new(input_filename).dirname}/#{renamed_basename}#{Pathname.new(input_filename).extname}"
+
+    
+    FileUtils.mv(input_filename, output_filename, force: true) unless input_filename == output_filename
     output_filename
   end
-  
-  def wavify_file!(input_filename)
-    output_filename = "#{destdir}/#{output_file_basename}.wav"
 
-    execute_system_command("#{FFMPEG_BIN} -y -i #{input_filename} -acodec pcm_s16le #{output_filename}")
+  def wavify_file!(input_filename)
+    output_filename = "#{destdir}/#{Pathname.new(input_filename).basename('.*')}.wav"
+
+    execute_system_command!("#{FFMPEG_BIN} -y -i #{input_filename} -acodec pcm_s16le #{output_filename}")
     output_filename
   end
 
   def trim_wav_file!(input_filename)
-    output_filename = "#{destdir}/#{output_file_basename}_trim#{input_file_ext}"
+    output_filename = "#{destdir}/#{Pathname.new(input_filename).basename('.*')}_trim#{Pathname.new(input_filename).extname}"
 
-    execute_system_command("#{FFMPEG_BIN} -y -i #{input_filename} -af atrim=start_sample=0:end_sample=#{@loop_end_sample_number} #{output_filename}")
+    execute_system_command!("#{FFMPEG_BIN} -y -i #{input_filename} -af atrim=start_sample=0:end_sample=#{@loop_end_sample_number} #{output_filename}")
     output_filename
   end
 
   def rawify_wav_file!(input_filename)
-    output_filename = "#{destdir}/#{output_file_basename}.raw"
+    output_filename = "#{destdir}/#{Pathname.new(input_filename).basename('.*')}.raw"
 
-    execute_system_command("#{FFMPEG_BIN} -y -i #{input_filename} -f s16le -c:a pcm_s16le #{output_filename}")
+    execute_system_command!("#{FFMPEG_BIN} -y -i #{input_filename} -f s16le -c:a pcm_s16le #{output_filename}")
     output_filename
+  end
+
+  def execute_system_command!(string)
+    puts "\033[0;32m#{string}\033[0;0m"
+    %x[#{string}]
+  end
+
+  def create_destdir!
+    FileUtils.mkdir_p(destdir)
+  end
+
+  def destdir
+    @destdir || Pathname.new(@input_filename).dirname
   end
 
   def loop_start_sample_number_little_endian_bytes
@@ -208,27 +234,6 @@ class FileConvertor
 
       bit_string[starting_position..ending_position].to_i(2)
     }
-  end
-
-  def execute_system_command(string)
-    puts "\033[0;32m#{string}\033[0;0m"
-    %x[#{string}]
-  end
-
-  def destdir
-    @destdir || Pathname.new(@input_filename).dirname
-  end
-
-  def create_destdir
-    FileUtils.mkdir_p(destdir)
-  end
-
-  def input_file_ext
-    Pathname.new(@input_filename).extname
-  end
-
-  def output_file_basename
-    Pathname.new(@input_filename).basename('.*')
   end
 end # FileConvertor
 
