@@ -64,9 +64,11 @@ class FileConvertor
     renamed_basename = Pathname.new(input_filename).basename('.*').to_s
       .downcase
       .gsub(/\s+/,'_')
+      .gsub(/[,\.]/,'_')
       .gsub(/['?!()]/,'')
       .sub(/^\d+/) {|digits| sprintf("%04d", digits.to_i)}
       .gsub(/_-_/,'_')
+      .gsub(/_+/,'_')
 
     output_filename = "#{Pathname.new(input_filename).dirname}/#{renamed_basename}#{Pathname.new(input_filename).extname}"
     
