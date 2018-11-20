@@ -14,8 +14,9 @@
 If we have arbitrary audio files we want to use with the MSU-1 we need to do the following:
 
 1. Convert the audio into wav signed 16-bit little endian 44.1kHz. This new audio file will have the the same raw audio data that the MSU-1 can read, but it will have a wav header. This is OK because we need to be able to open this audio file up in some program that can inspect audio
-2. Use an audio program, preferably one that can show you sample numbers, to find the sample numbers of where you want the song to loop. Videogame songs, in general, loop seemlessly so you have to be able to find the sample numbers. Since the audio is 44.1kHz there will be 44,100 samples per second. You can think of each sample representing 1/44100th of a second of data. You need to find the sample number where loop will start and the sample number where the loop will end.
-3. With the loop start and end points we cut all the audio from the wav file after the loop point. We can then remove the wav header and replace it with the MSU-1 header which contains the loop start point (in little endian).
+1. Use an audio program, preferably one that can show you sample numbers, to find the sample numbers of where you want the song to loop. Videogame songs, in general, loop seemlessly so you have to be able to find the sample numbers to get this effect. Since the audio is 44.1kHz there will be 44,100 samples per second. You can think of each sample representing 1/44100th of a second of data.
+1. Normalize the audio levels. I find -22 LUFS works well.
+1. With the loop start and end points we cut all the audio from the wav file after the loop point. We can then remove the wav header and replace it with the MSU-1 header which contains the loop start point (in little endian).
 ### Bulk Conversion Example
 
 #### starting with mp3 files
