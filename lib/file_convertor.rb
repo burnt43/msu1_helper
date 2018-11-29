@@ -10,40 +10,48 @@ class FileConvertor
     @loop_start_sample_number = options[:loop_start_sample_number]
     @loop_end_sample_number   = options[:loop_end_sample_number]
     @destdir                  = options[:destdir]
+    @no_clobber               = options[:no_clobber]
   end
   
   def convert_wav_to_msu1_pcm!
     puts '-'*90
     puts "\033[0;33m#{@input_filename}\033[0;0m"
-    create_destdir!
-
-    trimmed_filename    = trim_wav_file!(@input_filename)
-    loudnorm_data       = analyze_loudnorm_of_wav_file(trimmed_filename)
-    normalized_filename = normalize_wav_file!(trimmed_filename, loudnorm_data)
-    raw_filename        = rawify_wav_file!(normalized_filename)
-    
-    raw_file          = File.open(raw_filename, 'r')
-    raw_file_contents = raw_file.read
-    raw_file.close
 
     msu1_pcm_filename = "#{destdir}/#{Pathname.new(@input_filename).basename('.*')}.pcm"
 
-    print "adding MSU-1 header..."
-    File.open(msu1_pcm_filename, 'w') {|f|
-      f.print('MSU1')
-      f.print(loop_start_sample_number_little_endian_bytes.map(&:chr).join)
-      f.print(raw_file_contents)
-    }
-    puts "\033[0;32mOK\033[0;0m"
+    if @no_clobber && File.exist?(msu1_pcm_filename)
+      print "file already exists and will not be overridden..."
+      puts "\033[0;32mOK\033[0;0m"
+    else  
+      create_destdir!
 
-    
-    print "cleaning up temp files..."
-    FileUtils.rm(trimmed_filename)
-    FileUtils.rm(normalized_filename)
-    FileUtils.rm(raw_filename)
-    puts "\033[0;32mOK\033[0;0m"
+      trimmed_filename    = trim_wav_file!(@input_filename)
+      loudnorm_data       = analyze_loudnorm_of_wav_file(trimmed_filename)
+      normalized_filename = normalize_wav_file!(trimmed_filename, loudnorm_data)
+      raw_filename        = rawify_wav_file!(normalized_filename)
+      
+      raw_file          = File.open(raw_filename, 'r')
+      raw_file_contents = raw_file.read
+      raw_file.close
 
-    puts "#{msu1_pcm_filename} created!"
+
+      print "adding MSU-1 header..."
+      File.open(msu1_pcm_filename, 'w') {|f|
+        f.print('MSU1')
+        f.print(loop_start_sample_number_little_endian_bytes.map(&:chr).join)
+        f.print(raw_file_contents)
+      }
+      puts "\033[0;32mOK\033[0;0m"
+
+      
+      print "cleaning up temp files..."
+      FileUtils.rm(trimmed_filename)
+      FileUtils.rm(normalized_filename)
+      FileUtils.rm(raw_filename)
+      puts "\033[0;32mOK\033[0;0m"
+
+      puts "#{msu1_pcm_filename} created!"
+    end
   end
 
   def convert_to_wav!

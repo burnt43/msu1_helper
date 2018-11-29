@@ -27,6 +27,7 @@ class Msu1Helper
             loop_start_sample_number: loop_bounds[:loop_start],
             loop_end_sample_number:   loop_bounds[:loop_end],
             destdir:                  @options.destdir,
+            no_clobber:               @options.no_clobber,
           }).convert_wav_to_msu1_pcm!
         end 
       }

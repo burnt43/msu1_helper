@@ -9,6 +9,7 @@ class ArgumentParser
     options.loop_end    = nil
     options.loop_table  = nil
     options.destdir     = nil
+    options.no_clobber  = false
 
     option_parser = OptionParser.new {|opts|
       opts.on("-i", "--input-files=INPUT_FILES", "input file or glob") {|input|
@@ -17,6 +18,10 @@ class ArgumentParser
 
       opts.on("-t", "--output-type=OUTPUT_TYPE", "type to convert audio to (#{OUTPUT_TYPES.join(', ')})") {|output_type|
         options.output_type = output_type
+      }
+
+      opts.on("-n", "--no-clobber", "do not overwrite existing files") {|no_clobber|
+        options.no_clobber = true
       }
 
       opts.on("-s", "--loop-start=LOOP_START", "sample number of where the loop should start") {|loop_start|
