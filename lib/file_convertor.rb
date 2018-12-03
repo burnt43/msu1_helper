@@ -1,7 +1,7 @@
 class FileConvertor
   FFMPEG_BIN                      = '/usr/bin/ffmpeg'
   FFMPEG_SUFFIX_OPTIONS           = '2>&1'
-  TARGET_LUFS                     = -22
+  TARGET_LUFS                     = -19
   FFMPEG_LOUDNORM_DATA_LINE_REGEX = %r/^\[Parsed_loudnorm/
 
   def initialize(input_filename, options={})
