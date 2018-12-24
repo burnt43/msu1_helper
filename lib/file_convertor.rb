@@ -73,7 +73,7 @@ class FileConvertor
       .downcase
       .gsub(/\s+/,'_')
       .gsub(/[,\.\-]/,'_')
-      .gsub(/['?!()]/,'')
+      .gsub(/['?!()~]/,'')
       .sub(/^\d+/) {|digits| sprintf("%04d", digits.to_i)}
       .gsub(/_-_/,'_')
       .gsub(/_+/,'_')
