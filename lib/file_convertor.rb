@@ -96,10 +96,19 @@ class FileConvertor
 
   def trim_wav_file!(input_filename)
     print "trimming..."
-    output_filename = "#{destdir}/#{Pathname.new(input_filename).basename('.*')}_trimmed#{Pathname.new(input_filename).extname}"
 
-    execute_system_command!(%Q(#{FFMPEG_BIN} -y -i "#{input_filename}" -af atrim=start_sample=0:end_sample=#{@loop_end_sample_number} "#{output_filename}" #{FFMPEG_SUFFIX_OPTIONS}))
+    output_filename =
+      "#{destdir}/#{Pathname.new(input_filename).basename('.*')}_" \
+      "trimmed#{Pathname.new(input_filename).extname}"
+
+    execute_system_command!(
+      "#{FFMPEG_BIN} -y -i \"#{input_filename}\" -af " \
+      "atrim=start_sample=0:end_sample=#{@loop_end_sample_number} " \
+      "\"#{output_filename}\" #{FFMPEG_SUFFIX_OPTIONS}"
+    )
+
     puts "\033[0;32mOK\033[0;0m"
+
     output_filename
   end
 
@@ -114,7 +123,14 @@ class FileConvertor
 
   def analyze_loudnorm_of_wav_file(input_filename)
     print "analyzing loudnorm..."
-    ffmpeg_output = execute_system_command!(%Q(#{FFMPEG_BIN} -i "#{input_filename}" -af loudnorm=print_format=json -f null - #{FFMPEG_SUFFIX_OPTIONS}))
+
+    ffmpeg_output =
+      execute_system_command!(
+        "#{FFMPEG_BIN} -i \"#{input_filename}\" -af " \
+        "loudnorm=print_format=json " \
+        "-f null - #{FFMPEG_SUFFIX_OPTIONS}"
+      )
+
     puts "\033[0;32mOK\033[0;0m"
 
     print "parsing loudnorm data..."
@@ -129,6 +145,7 @@ class FileConvertor
         json_string.print _line
       end
     }
+
     json = JSON.parse(json_string.string)
     puts "\033[0;32mOK\033[0;0m"
     json
@@ -136,9 +153,26 @@ class FileConvertor
 
   def normalize_wav_file!(input_filename, loudnorm_data)
     print "normalizing..."
-    output_filename = "#{destdir}/#{Pathname.new(input_filename).basename('.*')}_normalized#{Pathname.new(input_filename).extname}"
-    execute_system_command!(%Q(#{FFMPEG_BIN} -i "#{input_filename}" -af loudnorm=linear=true:I=#{TARGET_LUFS}:measured_I=#{loudnorm_data['input_i']}:measured_TP=#{loudnorm_data['input_tp']}:measured_LRA=#{loudnorm_data['input_lra']}:measured_thresh=#{loudnorm_data['input_thresh']}:offset=#{loudnorm_data['target_offset']}:print_format=json "#{output_filename}" #{FFMPEG_SUFFIX_OPTIONS}))
+
+    output_filename =
+      "#{destdir}/#{Pathname.new(input_filename).basename('.*')}_" \
+      "normalized#{Pathname.new(input_filename).extname}"
+
+    execute_system_command!(
+      "#{FFMPEG_BIN} -i \"#{input_filename}\" -af " \
+      "loudnorm=linear=true:" \
+      "I=#{TARGET_LUFS}:" \
+      "measured_I=#{loudnorm_data['input_i']}:" \
+      "measured_TP=#{loudnorm_data['input_tp']}:" \
+      "measured_LRA=#{loudnorm_data['input_lra']}:" \
+      "measured_thresh=#{loudnorm_data['input_thresh']}:" \
+      "offset=#{loudnorm_data['target_offset']}:" \
+      "print_format=json \"#{output_filename}\" " \
+      "#{FFMPEG_SUFFIX_OPTIONS}"
+    )
+
     puts "\033[0;32mOK\033[0;0m"
+
     output_filename
   end
 

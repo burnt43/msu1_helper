@@ -22,14 +22,19 @@ class Msu1Helper
       }
     when 'msu1_pcm'
       @options.input_files.each {|filename|
-        if loop_bounds = @options.loop_table.loop_bounds_by_filename(filename)
-          FileConvertor.new(filename,{
-            loop_start_sample_number: loop_bounds[:loop_start],
-            loop_end_sample_number:   loop_bounds[:loop_end],
-            destdir:                  @options.destdir,
-            no_clobber:               @options.no_clobber,
-          }).convert_wav_to_msu1_pcm!
-        end 
+        loop_start, loop_end =
+          if loop_bounds = @options.loop_table&.loop_bounds_by_filename(filename)
+            [loop_bounds[:loop_start], loop_bounds[:loop_end]]
+          else
+            [@options.loop_start, @options.loop_end]
+          end
+
+        FileConvertor.new(filename,{
+          loop_start_sample_number: loop_start,
+          loop_end_sample_number:   loop_end,
+          destdir:                  @options.destdir,
+          no_clobber:               @options.no_clobber,
+        }).convert_wav_to_msu1_pcm!
       }
     end
   end

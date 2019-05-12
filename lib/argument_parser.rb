@@ -25,11 +25,11 @@ class ArgumentParser
       }
 
       opts.on("-s", "--loop-start=LOOP_START", "sample number of where the loop should start") {|loop_start|
-        options.loop_start = loop_start
+        options.loop_start = loop_start.to_i
       }
 
       opts.on("-e", "--loop-end=LOOP_END", "sample number of where the loop should end") {|loop_end|
-        options.loop_end = loop_end
+        options.loop_end = loop_end.to_i
       }
 
       opts.on("-l", "--loop-table=LOOP_TABLE", "loop table filename") {|loop_table_filename|
